@@ -46,14 +46,13 @@
         <option value="">-- Select a Route --</option>
     </select>
     
-    <table>
+    <table id="routeTable">
         <tr>
             <th>Route Number</th>
             <th>Road Name</th>
             <th>Towards Direction</th>
             <th>Distance (km)</th>
         </tr>
-        <tbody id="routeTable"></tbody>
     </table>
 
     <div class="speed-container" id="speedContainer">
@@ -65,31 +64,11 @@
     
     <script>
         const routes = [
-            { number: "1", road: "Baba Banda Singh Bahadur Setu", direction: "Sarai Kale Khan", distance: 4.4 },
-            { number: "2", road: "Jangpura Rd", direction: "Delhi Golf Club", distance: 5.8 },
-            { number: "3", road: "Mahatma Gandhi Rd", direction: "Ashram", distance: 7.5 },
-            { number: "4", road: "Mahatma Gandhi Rd", direction: "Moti Bagh", distance: 6.4 },
-            { number: "5", road: "Sri Aurobindo Marg", direction: "Mehrauli", distance: 5.1 },
-            { number: "6", road: "Outer Ring Rd", direction: "Okhla", distance: 5.5 },
-            { number: "7", road: "Outer Ring Rd", direction: "Greater Kailash to Kakaji Mandir", distance: 6.3 },
-            { number: "8", road: "Acharya Shree Tulsi Marg", direction: "Qutab Minar", distance: 7.8 },
-            { number: "9", road: "Acharya Shree Tulsi Marg", direction: "Hauj Khas", distance: 8.0 },
-            { number: "10", road: "Delhi Ajmer Expressway", direction: "Gurugram to Delhi I.G.I. Airport", distance: 9.1 },
-            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 8.9 },
-            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.2 },
-            { number: "13", road: "India Gate Circle - Purana Qila Rd", direction: "Pragati Maidan", distance: 3.5 },
-            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 4.7 },
-            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 5.4 },
-            { number: "16", road: "GT Karnal Rd", direction: "Shastri Park", distance: 7.0 },
-            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 3.9 },
-            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 5.2 },
-            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 4.1 },
-            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 4.8 },
-            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 9.3 },
-            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 6.0 },
-            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.6 },
-            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 7.1 },
-            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 8.4 }
+            { number: "1", road: "Baba Banda Singh Bahadur Setu", direction: "Sarai Kale Khan", distance: 4.4, origin: "28.5759808,77.2186263", destination: "28.5827828,77.256016" },
+            { number: "2", road: "Jangpura Rd", direction: "Delhi Golf Club", distance: 5.8, origin: "28.5513964,77.273842", destination: "28.5952797,77.2420698" },
+            { number: "3", road: "Mahatma Gandhi Rd", direction: "Ashram", distance: 7.5, origin: "28.5732655,77.179352", destination: "28.5665441,77.2525954" },
+            { number: "4", road: "Mahatma Gandhi Rd", direction: "Moti Bagh", distance: 6.4, origin: "28.5653553,77.2470071", destination: "28.5709028,77.1820616" },
+            { number: "5", road: "Sri Aurobindo Marg", direction: "Mehrauli", distance: 5.1, origin: "28.5714791,77.2092125", destination: "28.5295786,77.1917679" }
         ];
 
         function populateDropdown() {
@@ -103,20 +82,49 @@
         }
 
         function populateTable() {
-            const tableBody = document.getElementById("routeTable");
-            tableBody.innerHTML = "";
+            const table = document.getElementById("routeTable");
             routes.forEach(route => {
-                const row = `<tr data-route="${route.number}"><td>${route.number}</td><td>${route.road}</td><td>${route.direction}</td><td>${route.distance}</td></tr>`;
-                tableBody.innerHTML += row;
+                const row = document.createElement("tr");
+                row.dataset.route = route.number;
+                row.innerHTML = `<td>${route.number}</td><td>${route.road}</td><td>${route.direction}</td><td>${route.distance}</td>`;
+                table.appendChild(row);
             });
         }
 
         function filterTable() {
-            const selectedRoute = document.getElementById("routeSelect").value;
-            document.getElementById("speedContainer").style.display = selectedRoute ? "flex" : "none";
-            document.querySelectorAll("tbody tr").forEach(row => {
-                row.style.display = selectedRoute && row.dataset.route !== selectedRoute ? "none" : "";
+            const selectedRouteNumber = document.getElementById("routeSelect").value;
+            document.getElementById("speedContainer").style.display = selectedRouteNumber ? "flex" : "none";
+            document.querySelectorAll("#routeTable tr").forEach(row => {
+                if (row.dataset.route) {
+                    row.style.display = selectedRouteNumber && row.dataset.route !== selectedRouteNumber ? "none" : "";
+                }
             });
+            if (selectedRouteNumber) {
+                fetchSpeedData(routes.find(route => route.number === selectedRouteNumber));
+            }
+        }
+
+        function fetchSpeedData(route) {
+            const apiKey = "${{ secrets.GOOGLE_MAPS_API_KEY }}";
+            const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${route.origin}&destination=${route.destination}&key=${apiKey}&departure_time=now&traffic_model=best_guess`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.routes.length > 0) {
+                        const legs = data.routes[0].legs[0];
+                        const freeFlowSpeed = (route.distance / (legs.duration.value / 3600)).toFixed(2);
+                        const freeFlowTime = (legs.duration.value / 60).toFixed(2);
+                        const currentSpeed = (route.distance / (legs.duration_in_traffic.value / 3600)).toFixed(2);
+                        const currentTravelTime = (legs.duration_in_traffic.value / 60).toFixed(2);
+                        
+                        document.getElementById("freeFlowSpeed").textContent = `Free Flow Speed: ${freeFlowSpeed} km/h`;
+                        document.getElementById("freeFlowTime").textContent = `Free Flow Time: ${freeFlowTime} mins`;
+                        document.getElementById("currentSpeed").textContent = `Current Speed: ${currentSpeed} km/h`;
+                        document.getElementById("currentTravelTime").textContent = `Current Travel Time: ${currentTravelTime} mins`;
+                    }
+                })
+                .catch(error => console.error("Error fetching speed data:", error));
         }
 
         window.onload = function() {
