@@ -36,12 +36,13 @@
             width: 250px;
         }
     </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=${{ secrets.GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
 </head>
 <body>
     <h2>Delhi Route Dashboard</h2>
     
     <label for="routeSelect">Select a Route:</label>
-    <select id="routeSelect">
+    <select id="routeSelect" onchange="fetchLiveData()">
         <option value="">-- Select a Route --</option>
     </select>
     
@@ -74,36 +75,37 @@
             { number: "8", road: "Acharya Shree Tulsi Marg", direction: "Qutab Minar", distance: 7.8 },
             { number: "9", road: "Acharya Shree Tulsi Marg", direction: "Hauj Khas", distance: 8.0 },
             { number: "10", road: "Delhi Ajmer Expressway", direction: "Gurugram to Delhi I.G.I. Airport", distance: 9.1 },
-            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 8.5 },
-            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.7 },
-            { number: "13", road: "India Gate Circle (C Hexagon) - Purana Qila Rd", direction: "Pragati Maidan", distance: 4.9 },
-            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 5.2 },
-            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 7.1 },
-            { number: "16", road: "GT Karnal Rd", direction: "Shastri Park", distance: 6.0 },
-            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 5.6 },
-            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 6.4 },
-            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 4.3 },
-            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 5.9 },
-            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 7.3 },
-            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 6.2 },
-            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.7 },
-            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 6.8 },
-            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 7.4 }
+            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 8.9 },
+            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.2 },
+            { number: "13", road: "India Gate Circle - Purana Qila Rd", direction: "Pragati Maidan", distance: 3.5 },
+            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 4.7 },
+            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 5.4 },
+            { number: "16", road: "GT Karnal Rd", direction: "Shastri Park", distance: 7.0 },
+            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 3.9 },
+            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 5.2 },
+            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 4.1 },
+            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 4.8 },
+            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 9.3 },
+            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 6.0 },
+            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.6 },
+            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 7.1 },
+            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 8.4 }
         ];
 
-        function populateTable() {
-            const tableBody = document.getElementById("routeTable");
-            routes.forEach(route => {
-                const row = `<tr>
-                    <td>${route.number}</td>
-                    <td>${route.road}</td>
-                    <td>${route.direction}</td>
-                    <td>${route.distance}</td>
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
+        function fetchLiveData() {
+            const selectedRouteNumber = document.getElementById("routeSelect").value;
+            const selectedRoute = routes.find(route => route.number === selectedRouteNumber);
+            if (!selectedRoute) return;
+            
+            const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${selectedRoute.road}&destination=${selectedRoute.direction}&key=${{ secrets.GOOGLE_MAPS_API_KEY }}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.error('Error fetching data:', error));
         }
-        
+
         function populateDropdown() {
             const dropdown = document.getElementById("routeSelect");
             routes.forEach(route => {
@@ -115,7 +117,6 @@
         }
 
         window.onload = function() {
-            populateTable();
             populateDropdown();
         };
     </script>
