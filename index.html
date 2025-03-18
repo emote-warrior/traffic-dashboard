@@ -3,6 +3,10 @@
 <head>
     <title>Delhi Route Dashboard</title>
     <style>
+        body {
+            font-family: 'Aptos', sans-serif;
+            text-align: center;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -15,6 +19,21 @@
         }
         th {
             background-color: #f2f2f2;
+        }
+        .speed-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .speed-box {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            width: 250px;
         }
     </style>
 </head>
@@ -35,6 +54,13 @@
         </tr>
         <tbody id="routeTable"></tbody>
     </table>
+
+    <div class="speed-container">
+        <div class="speed-box" id="freeFlowSpeed">Free Flow Speed: -- km/h</div>
+        <div class="speed-box" id="freeFlowTime">Free Flow Time: -- mins</div>
+        <div class="speed-box" id="currentSpeed">Current Speed: -- km/h</div>
+        <div class="speed-box" id="currentTravelTime">Current Travel Time: -- mins</div>
+    </div>
     
     <script>
         const routes = [
@@ -48,21 +74,21 @@
             { number: "8", road: "Acharya Shree Tulsi Marg", direction: "Qutab Minar", distance: 7.8 },
             { number: "9", road: "Acharya Shree Tulsi Marg", direction: "Hauj Khas", distance: 8.0 },
             { number: "10", road: "Delhi Ajmer Expressway", direction: "Gurugram to Delhi I.G.I. Airport", distance: 9.1 },
-            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 3.4 },
-            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.9 },
-            { number: "13", road: "India Gate Circle (C Hexagon) - Purana Qila Rd", direction: "Pragati Maidan", distance: 8.2 },
-            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 4.5 },
-            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 5.9 },
+            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 8.5 },
+            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.7 },
+            { number: "13", road: "India Gate Circle (C Hexagon) - Purana Qila Rd", direction: "Pragati Maidan", distance: 4.9 },
+            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 5.2 },
+            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 7.1 },
             { number: "16", road: "GT Karnal Rd", direction: "Shastri Park", distance: 6.0 },
-            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 7.2 },
-            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 4.7 },
-            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 5.3 },
-            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 9.4 },
-            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 6.7 },
-            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 7.9 },
-            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.6 },
-            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 8.5 },
-            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 6.1 }
+            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 5.6 },
+            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 6.4 },
+            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 4.3 },
+            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 5.9 },
+            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 7.3 },
+            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 6.2 },
+            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.7 },
+            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 6.8 },
+            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 7.4 }
         ];
 
         function populateTable() {
