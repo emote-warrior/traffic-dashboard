@@ -2,12 +2,7 @@
 <html>
 <head>
     <title>Delhi Route Dashboard</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <style>
-        #map {
-            height: 500px;
-            width: 100%;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -27,76 +22,57 @@
     <h2>Delhi Route Dashboard</h2>
     
     <label for="routeSelect">Select a Route:</label>
-    <select id="routeSelect" onchange="updateMap()">
+    <select id="routeSelect">
         <option value="">-- Select a Route --</option>
     </select>
-    
-    <div id="map"></div>
     
     <table>
         <tr>
             <th>Route Number</th>
-            <th>Origin</th>
-            <th>Destination</th>
+            <th>Road Name</th>
+            <th>Towards Direction</th>
             <th>Distance (km)</th>
-            <th>Map Link</th>
         </tr>
         <tbody id="routeTable"></tbody>
     </table>
     
     <script>
-        let map;
-        let directionsService;
-        let directionsRenderer;
         const routes = [
-            { number: "Route 1", origin: "Origin 1", destination: "Destination 1", distance: 4.4, link: "#" },
-            { number: "Route 2", origin: "Origin 2", destination: "Destination 2", distance: 5.8, link: "#" },
-            { number: "Route 3", origin: "Origin 3", destination: "Destination 3", distance: 7.5, link: "#" },
-            { number: "Route 4", origin: "Origin 4", destination: "Destination 4", distance: 6.4, link: "#" },
-            { number: "Route 5", origin: "Origin 5", destination: "Destination 5", distance: 5.1, link: "#" },
-            { number: "Route 6", origin: "Origin 6", destination: "Destination 6", distance: 5.5, link: "#" },
-            { number: "Route 7", origin: "Origin 7", destination: "Destination 7", distance: 6.3, link: "#" },
-            { number: "Route 8", origin: "Origin 8", destination: "Destination 8", distance: 7.8, link: "#" },
-            { number: "Route 9", origin: "Origin 9", destination: "Destination 9", distance: 8.0, link: "#" },
-            { number: "Route 10", origin: "Origin 10", destination: "Destination 10", distance: 9.1, link: "#" },
-            { number: "Route 11", origin: "Origin 11", destination: "Destination 11", distance: 3.4, link: "#" },
-            { number: "Route 12", origin: "Origin 12", destination: "Destination 12", distance: 6.9, link: "#" },
-            { number: "Route 13", origin: "Origin 13", destination: "Destination 13", distance: 8.2, link: "#" },
-            { number: "Route 14", origin: "Origin 14", destination: "Destination 14", distance: 4.5, link: "#" },
-            { number: "Route 15", origin: "Origin 15", destination: "Destination 15", distance: 5.9, link: "#" },
-            { number: "Route 16", origin: "Origin 16", destination: "Destination 16", distance: 6.0, link: "#" },
-            { number: "Route 17", origin: "Origin 17", destination: "Destination 17", distance: 7.2, link: "#" },
-            { number: "Route 18", origin: "Origin 18", destination: "Destination 18", distance: 4.7, link: "#" },
-            { number: "Route 19", origin: "Origin 19", destination: "Destination 19", distance: 5.3, link: "#" },
-            { number: "Route 20", origin: "Origin 20", destination: "Destination 20", distance: 9.4, link: "#" },
-            { number: "Route 21", origin: "Origin 21", destination: "Destination 21", distance: 6.7, link: "#" },
-            { number: "Route 22", origin: "Origin 22", destination: "Destination 22", distance: 7.9, link: "#" },
-            { number: "Route 23", origin: "Origin 23", destination: "Destination 23", distance: 5.6, link: "#" },
-            { number: "Route 24", origin: "Origin 24", destination: "Destination 24", distance: 8.5, link: "#" },
-            { number: "Route 25", origin: "Origin 25", destination: "Destination 25", distance: 6.1, link: "#" }
+            { number: "1", road: "Baba Banda Singh Bahadur Setu", direction: "Sarai Kale Khan", distance: 4.4 },
+            { number: "2", road: "Jangpura Rd", direction: "Delhi Golf Club", distance: 5.8 },
+            { number: "3", road: "Mahatma Gandhi Rd", direction: "Ashram", distance: 7.5 },
+            { number: "4", road: "Mahatma Gandhi Rd", direction: "Moti Bagh", distance: 6.4 },
+            { number: "5", road: "Sri Aurobindo Marg", direction: "Mehrauli", distance: 5.1 },
+            { number: "6", road: "Outer Ring Rd", direction: "Okhla", distance: 5.5 },
+            { number: "7", road: "Outer Ring Rd", direction: "Greater Kailash to Kakaji Mandir", distance: 6.3 },
+            { number: "8", road: "Acharya Shree Tulsi Marg", direction: "Qutab Minar", distance: 7.8 },
+            { number: "9", road: "Acharya Shree Tulsi Marg", direction: "Hauj Khas", distance: 8.0 },
+            { number: "10", road: "Delhi Ajmer Expressway", direction: "Gurugram to Delhi I.G.I. Airport", distance: 9.1 },
+            { number: "11", road: "Delhi Ajmer Expressway", direction: "Dhaula Kuan to Delhi I.G.I. Airport", distance: 3.4 },
+            { number: "12", road: "Vikas Marg", direction: "ITO", distance: 6.9 },
+            { number: "13", road: "India Gate Circle (C Hexagon) - Purana Qila Rd", direction: "Pragati Maidan", distance: 8.2 },
+            { number: "14", road: "Pragati Maidan Tunnel Rd", direction: "Sant Nagar", distance: 4.5 },
+            { number: "15", road: "Mathura Rd - Bhairon Marg", direction: "Supreme Court to Sant Nagar", distance: 5.9 },
+            { number: "16", road: "GT Karnal Rd", direction: "Shastri Park", distance: 6.0 },
+            { number: "17", road: "Lothian Rd - Netaji Subash Marg", direction: "Delhi Gate", distance: 7.2 },
+            { number: "18", road: "Desh Bandhu Gupta Rd", direction: "Sarai Rohilla Station", distance: 4.7 },
+            { number: "19", road: "Lothian Rd - Netaji Subash Marg", direction: "Jama Masjid", distance: 5.3 },
+            { number: "20", road: "Bahadur Shah Zafar Marg", direction: "Delhi Gate", distance: 9.4 },
+            { number: "21", road: "Shivaji Marg", direction: "Najafgarh", distance: 6.7 },
+            { number: "22", road: "Shivaji Marg", direction: "Subhash Nagar Metro", distance: 7.9 },
+            { number: "23", road: "Samaypur Badli Metro Rd", direction: "Rohini", distance: 5.6 },
+            { number: "24", road: "GT Karnal Rd", direction: "Libas Pur", distance: 8.5 },
+            { number: "25", road: "Mehrauli Badarpur Rd", direction: "Lado Sarai", distance: 6.1 }
         ];
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 28.6139, lng: 77.2090 },
-                zoom: 12
-            });
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
-            populateTable();
-            populateDropdown();
-        }
 
         function populateTable() {
             const tableBody = document.getElementById("routeTable");
             routes.forEach(route => {
                 const row = `<tr>
                     <td>${route.number}</td>
-                    <td>${route.origin}</td>
-                    <td>${route.destination}</td>
+                    <td>${route.road}</td>
+                    <td>${route.direction}</td>
                     <td>${route.distance}</td>
-                    <td><a href="${route.link}" target="_blank">View</a></td>
                 </tr>`;
                 tableBody.innerHTML += row;
             });
@@ -106,31 +82,16 @@
             const dropdown = document.getElementById("routeSelect");
             routes.forEach(route => {
                 const option = document.createElement("option");
-                option.value = JSON.stringify({ origin: route.origin, destination: route.destination });
-                option.textContent = route.number;
+                option.value = route.number;
+                option.textContent = `Route ${route.number}`;
                 dropdown.appendChild(option);
             });
         }
 
-        function updateMap() {
-            const selectedRoute = document.getElementById("routeSelect").value;
-            if (!selectedRoute) return;
-            const { origin, destination } = JSON.parse(selectedRoute);
-            const request = {
-                origin: origin,
-                destination: destination,
-                travelMode: 'DRIVING'
-            };
-            directionsService.route(request, function(result, status) {
-                if (status == 'OK') {
-                    directionsRenderer.setDirections(result);
-                } else {
-                    alert("Error fetching directions: " + status);
-                }
-            });
-        }
-        
-        window.onload = initMap;
+        window.onload = function() {
+            populateTable();
+            populateDropdown();
+        };
     </script>
 </body>
 </html>
